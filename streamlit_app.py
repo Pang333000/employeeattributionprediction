@@ -412,6 +412,8 @@ def show_model_performance_page(df):
                 st.write("XGBoost with Random Forest-like tree growing")
             elif model_name == "CatBoost+KNN":
                 st.write("A hybrid model combining CatBoost with k-Nearest Neighbors")
+            elif model_name == "Bagging":
+                st.write("Bagging (Bootstrap Aggregating) is an ensemble learning technique that reduces variance and avoids overfitting by training multiple models on different random subsets of the training data and combining their predictions. This model uses a DecisionTreeClassifier as the base learner. Each tree is trained on a different bootstrap sample of the training data.")
 
 # 2. Show the user interface and make predictions
 def show_prediction_interface(trained_models):
