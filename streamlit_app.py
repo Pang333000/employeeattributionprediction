@@ -11,13 +11,18 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
 
 # Page config
 st.set_page_config(page_title="Employee Attrition Analysis", layout="wide")
 
 def load_data():
-    # Replace with your data loading logic
-    df = pd.read_csv('/workspaces/employeeattributionprediction/HR_Analytics.csv.csv')
+    # Dynamically determine the path of the CSV file
+    base_path = os.path.dirname(os.path.abspath(__file__))  # Get the script's directory
+    file_path = os.path.join(base_path, 'HR_Analytics.csv.csv')  # Adjust for your file name
+    if not os.path.exists(file_path):
+        print(f"File not found at: {file_path}")
+    df = pd.read_csv(file_path)
     return df
 
 def preprocess_data(df):
