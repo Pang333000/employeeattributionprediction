@@ -92,8 +92,6 @@ def load_models():
         "Calibration_Curves",
         "HGBoost+KNN",
         "XGBRF",
-        "CatBoost+KNN",
-        "CatBoost",
         "Random_Forest"
     ]
 
