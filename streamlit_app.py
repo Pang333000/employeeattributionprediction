@@ -267,31 +267,149 @@ def show_feature_analysis_page(df):
 
 def show_model_performance_page(df):
     st.header("Model Performance Analysis")
+    
+    # Remove columns that weren't used in training
+    columns_to_drop = ['EmployeeCount', 'Over18', 'StandardHours']
+    df_clean = df.drop(columns=columns_to_drop, errors='ignore')
+    
+    # Prepare data
+    X = df_clean.drop(columns=['Attrition'])  # Features
+    y = df_clean['Attrition']  # Target
+    
+    # Split the data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    
+    # Load models
+    try:
+        trained_models = load_models()
+    except Exception as e:
+        st.error(f"Error loading models: {str(e)}")
+        return
+    
+    # Calculate metrics
+    evaluation_results = []
+    
+    for model_name, model in trained_models.items():
+        try:
+            # Skip helper models
+            if model_name in ["CatBoost", "Random_Forest"]:
+                continue
+            
+            # Make predictions based on model type
+            if isinstance(model, CascadeWrapper):
+                y_pred = model.predict(X_test)
+            elif isinstance(model, CatBoostKNNWrapper):
+                y_pred = model.predict(X_test)
+            else:
+                y_pred = model.predict(X_test)
+            
+            # Calculate metrics
+            accuracy = accuracy_score(y_test, y_pred)
+            precision = precision_score(y_test, y_pred, zero_division=0)
+            recall = recall_score(y_test, y_pred, zero_division=0)
+            f1 = f1_score(y_test, y_pred, zero_division=0)
+            
+            evaluation_results.append({
+                "Model Name": model_name,
+                "Accuracy": accuracy,
+                "Precision": precision,
+                "Recall": recall,
+                "F1 Score": f1
+            })
+            
+        except Exception as e:
+            st.warning(f"Error evaluating {model_name}: {str(e)}")
+            continue
+    
+    # Check if we have any results
+    if not evaluation_results:
+        st.error("No models could be successfully evaluated.")
+        return
+    
+    # Convert results to DataFrame
+    results_df = pd.DataFrame(evaluation_results)
+    
+    # Display metrics table
+    st.subheader("Model Performance Metrics")
+    st.dataframe(results_df.round(3))
+    
+    # Create visualization
+    st.subheader("Performance Metrics Visualization")
+    
+    # Create tabs for different visualization options
+    tab1, tab2 = st.tabs(["Individual Metrics", "Comparative View"])
+    
+    with tab1:
+        # Individual metric plots
+        metrics = ["Accuracy", "Precision", "Recall", "F1 Score"]
+        
+        for metric in metrics:
+            fig = go.Figure(data=[
+                go.Bar(
+                    x=results_df["Model Name"],
+                    y=results_df[metric],
+                    text=results_df[metric].round(3),
+                    textposition='auto',
+                )
+            ])
+            
+            fig.update_layout(
+                title=f"{metric} by Model",
+                xaxis_title="Model",
+                yaxis_title=metric,
+                yaxis_range=[0, 1],
+                height=400
+            )
+            
+            fig.update_xaxes(tickangle=45)
+            st.plotly_chart(fig, use_container_width=True)
+    
+    with tab2:
+        # Only include models with complete data for parallel coordinates plot
+        fig = go.Figure(data=
+            go.Parcoords(
+                line=dict(color=results_df.index),
+                dimensions=[
+                    dict(range=[0, 1], label="Accuracy", values=results_df["Accuracy"]),
+                    dict(range=[0, 1], label="Precision", values=results_df["Precision"]),
+                    dict(range=[0, 1], label="Recall", values=results_df["Recall"]),
+                    dict(range=[0, 1], label="F1 Score", values=results_df["F1 Score"])
+                ]
+            )
+        )
+        
+        fig.update_layout(
+            title="Comparative Model Performance",
+            height=500
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+    
+    # Add download button for the results
+    csv = results_df.to_csv(index=False)
+    st.download_button(
+        label="Download Performance Metrics CSV",
+        data=csv,
+        file_name="model_performance_metrics.csv",
+        mime="text/csv"
+    )
 
-    # Split data
-    X = df.drop('Attrition', axis=1)
-    y = df['Attrition']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Model metrics
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("Model Comparison")
-        metrics_df = pd.DataFrame({
-            'Model': ['Random Forest', 'Gradient Boosting', 'Stacking'],
-            'Accuracy': [0.85, 0.83, 0.86],
-            'AUC': [0.82, 0.81, 0.84]
-        })
-        fig = px.bar(metrics_df, x='Model', y=['Accuracy', 'AUC'], barmode='group')
-        st.plotly_chart(fig)
-
-    with col2:
-        st.subheader("ROC Curves")
-        fig = go.Figure()
-        # Add ROC curves for different models
-        fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', name='Random'))
-        st.plotly_chart(fig)
+    # Display model information
+    st.subheader("Model Information")
+    for model_name in results_df["Model Name"]:
+        with st.expander(f"About {model_name}"):
+            if model_name == "Stacked RF+GB+SVM":
+                st.write("A stacked ensemble combining Random Forest, Gradient Boosting, and Support Vector Machine")
+            elif model_name == "Cascading Classifiers":
+                st.write("A cascade of classifiers where each model's predictions inform the next")
+            elif model_name == "Calibration Curves":
+                st.write("Models with probability calibration applied")
+            elif model_name == "HGBoost+KNN":
+                st.write("A hybrid model combining Histogram-based Gradient Boosting with k-Nearest Neighbors")
+            elif model_name == "XGBRF":
+                st.write("XGBoost with Random Forest-like tree growing")
+            elif model_name == "CatBoost+KNN":
+                st.write("A hybrid model combining CatBoost with k-Nearest Neighbors")
 
 # 2. Show the user interface and make predictions
 def show_prediction_interface(trained_models):
