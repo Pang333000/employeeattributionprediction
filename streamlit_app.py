@@ -17,11 +17,14 @@ import os
 st.set_page_config(page_title="Employee Attrition Analysis", layout="wide")
 
 def load_data():
-    # Dynamically determine the path of the CSV file
-    base_path = os.path.dirname(os.path.abspath(__file__))  # Get the script's directory
-    file_path = os.path.join(base_path, 'HR_Analytics.csv.csv')  # Adjust for your file name
+    # Get the absolute path to the script's directory
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    # Construct the file path relative to the script
+    file_path = os.path.join(base_path, 'HR_Analytics.csv.csv')
+    print(f"Loading data from: {file_path}")  # Log file path for debugging
+    # Load the dataset
     if not os.path.exists(file_path):
-        print(f"File not found at: {file_path}")
+        raise FileNotFoundError(f"File not found: {file_path}")
     df = pd.read_csv(file_path)
     return df
 
