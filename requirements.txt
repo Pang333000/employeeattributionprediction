@@ -1,10 +1,10 @@
-streamlit
+streamlit==1.41.1
 panda
-numpy==1.24.3
+numpy==1.24.4
 joblib
 plotly
 scikit-learn
 seaborn
 matplotlib
-catboost
+catboost==1.2
 lightgbm
