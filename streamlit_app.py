@@ -103,7 +103,6 @@ def load_models():
         file_name = os.path.join(save_path, f"{model_name.replace(' ', '_')}.joblib")
         if not os.path.exists(file_name):
             raise FileNotFoundError(f"Model file not found: {file_name}")
-
         trained_models[model_name] = joblib.load(file_name)
         print(f"Loaded {model_name} from {file_name}")
 
@@ -153,6 +152,7 @@ def show_overview_page(df):
     metrics[1].metric("Attrition Rate", f"{(df['Attrition'] == 'Yes').mean():.1%}")
     metrics[2].metric("Avg Tenure", f"{df['YearsAtCompany'].mean():.1f} years")
     metrics[3].metric("Avg Age", f"{df['Age'].mean():.1f} years")
+    
 
 def display_data_exploration(df):
     st.subheader("Data Exploration")
