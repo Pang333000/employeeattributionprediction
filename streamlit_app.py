@@ -81,10 +81,8 @@ class CatBoostKNNWrapper:
 
 # 1. Load pre-trained models
 def load_models():
-    # Dynamically determine the path to the models directory
-    base_path = os.path.dirname(os.path.abspath(__file__))  # Get the script's directory
-    save_path = os.path.join(base_path, 'Models')  # Adjust for your models directory
-
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    save_path = os.path.join(base_path, 'Models')
     trained_models = {}
     model_names = [
         "Stacked RF+GB+SVM",
@@ -97,36 +95,15 @@ def load_models():
         "Random_Forest"
     ]
 
-    # Load all models
     for model_name in model_names:
-        # Construct the file path dynamically
         file_name = os.path.join(save_path, f"{model_name.replace(' ', '_')}.joblib")
+        print(f"Loading model: {file_name}")
         if not os.path.exists(file_name):
             raise FileNotFoundError(f"Model file not found: {file_name}")
-        trained_models[model_name] = joblib.load(file_name)
-        print(f"Loaded {model_name} from {file_name}")
-
-    # ----------------------------------------------------------------
-    # Wrap "Cascading Classifiers" with the pre-model = "Random_Forest"
-    # ----------------------------------------------------------------
-    if "Cascading Classifiers" in trained_models and "Random_Forest" in trained_models:
-        main_model = trained_models["Cascading Classifiers"]
-        pre_model = trained_models["Random_Forest"]
-        cascade_wrapper = CascadeWrapper(main_model=main_model, pre_model=pre_model)
-        trained_models["Cascading Classifiers"] = cascade_wrapper
-        # Remove "Random_Forest" since it's only a pre-model
-        del trained_models["Random_Forest"]
-
-    # ----------------------------------------------------------------
-    # Wrap "CatBoost+KNN" with the pre-model = "CatBoost"
-    # ----------------------------------------------------------------
-    if "CatBoost+KNN" in trained_models and "CatBoost" in trained_models:
-        main_model = trained_models["CatBoost+KNN"]  # the KNN
-        pre_model = trained_models["CatBoost"]
-        catboost_knn_wrapper = CatBoostKNNWrapper(main_model=main_model, pre_model=pre_model)
-        trained_models["CatBoost+KNN"] = catboost_knn_wrapper
-        # Remove "CatBoost" since it's only a pre-model
-        del trained_models["CatBoost"]
+        try:
+            trained_models[model_name] = joblib.load(file_name)
+        except Exception as e:
+            raise RuntimeError(f"Failed to load {model_name}: {e}")
 
     return trained_models
 
