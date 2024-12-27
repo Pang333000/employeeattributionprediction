@@ -82,10 +82,12 @@ class CatBoostKNNWrapper:
 
 # 1. Load pre-trained models
 def load_models():
+    import traceback  # For detailed exception traceback
+
     # Dynamically determine the path to the "Models" directory
     base_path = os.path.dirname(os.path.abspath(__file__))
     save_path = os.path.join(base_path, 'Models')  # Adjusted for relative path
-    
+
     trained_models = {}
     model_names = [
         "Stacked RF+GB+SVM",
@@ -100,35 +102,57 @@ def load_models():
 
     # Load all models
     for model_name in model_names:
-        # Build file path and verify existence
-        file_name = os.path.join(save_path, f"{model_name.replace(' ', '_')}.joblib")
-        if not os.path.exists(file_name):
-            raise FileNotFoundError(f"Model file not found: {file_name}")
-        trained_models[model_name] = joblib.load(file_name)
-        print(f"Loaded {model_name} from {file_name}")
+        try:
+            # Build file path and verify existence
+            file_name = os.path.join(save_path, f"{model_name.replace(' ', '_')}.joblib")
+            if not os.path.exists(file_name):
+                raise FileNotFoundError(f"Model file not found: {file_name}")
+            
+            # Debug log for file path
+            print(f"Attempting to load {model_name} from {file_name}...")
+            
+            trained_models[model_name] = joblib.load(file_name)
+            print(f"Successfully loaded {model_name}.")
+
+        except Exception as e:
+            print(f"Error loading {model_name} from {file_name}: {e}")
+            traceback.print_exc()  # Print detailed exception traceback for debugging
 
     # ----------------------------------------------------------------
     # Wrap "Cascading Classifiers" with the pre-model = "Random_Forest"
     # ----------------------------------------------------------------
-    if "Cascading Classifiers" in trained_models and "Random_Forest" in trained_models:
-        main_model = trained_models["Cascading Classifiers"]
-        pre_model = trained_models["Random_Forest"]
-        cascade_wrapper = CascadeWrapper(main_model=main_model, pre_model=pre_model)
-        trained_models["Cascading Classifiers"] = cascade_wrapper
-        # Remove "Random_Forest" since it's only a pre-model
-        del trained_models["Random_Forest"]
+    try:
+        if "Cascading Classifiers" in trained_models and "Random_Forest" in trained_models:
+            main_model = trained_models["Cascading Classifiers"]
+            pre_model = trained_models["Random_Forest"]
+            cascade_wrapper = CascadeWrapper(main_model=main_model, pre_model=pre_model)
+            trained_models["Cascading Classifiers"] = cascade_wrapper
+            # Remove "Random_Forest" since it's only a pre-model
+            del trained_models["Random_Forest"]
+            print("Wrapped 'Cascading Classifiers' with 'Random_Forest'.")
+    except Exception as e:
+        print(f"Error wrapping 'Cascading Classifiers' with 'Random_Forest': {e}")
+        traceback.print_exc()
 
     # ----------------------------------------------------------------
     # Wrap "CatBoost+KNN" with the pre-model = "CatBoost"
     # ----------------------------------------------------------------
-    if "CatBoost+KNN" in trained_models and "CatBoost" in trained_models:
-        main_model = trained_models["CatBoost+KNN"]  # the KNN
-        pre_model = trained_models["CatBoost"]
-        catboost_knn_wrapper = CatBoostKNNWrapper(main_model=main_model, pre_model=pre_model)
-        trained_models["CatBoost+KNN"] = catboost_knn_wrapper
-        # Remove "CatBoost" since it's only a pre-model
-        del trained_models["CatBoost"]
+    try:
+        if "CatBoost+KNN" in trained_models and "CatBoost" in trained_models:
+            main_model = trained_models["CatBoost+KNN"]  # the KNN
+            pre_model = trained_models["CatBoost"]
+            catboost_knn_wrapper = CatBoostKNNWrapper(main_model=main_model, pre_model=pre_model)
+            trained_models["CatBoost+KNN"] = catboost_knn_wrapper
+            # Remove "CatBoost" since it's only a pre-model
+            del trained_models["CatBoost"]
+            print("Wrapped 'CatBoost+KNN' with 'CatBoost'.")
+    except Exception as e:
+        print(f"Error wrapping 'CatBoost+KNN' with 'CatBoost': {e}")
+        traceback.print_exc()
 
+    # Debug log for final models loaded
+    print("Final loaded models:", list(trained_models.keys()))
+    
     return trained_models
     
 def show_overview_page(df):
