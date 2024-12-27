@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
-from catboost import CatBoostClassifier
+
 
 # Page config
 st.set_page_config(page_title="Employee Attrition Analysis", layout="wide")
@@ -396,7 +396,7 @@ def show_prediction_interface(trained_models):
         st.subheader("Predictions from all models:")
         for model_name, prediction in predictions.items():
             st.write(f"{model_name}: {prediction}")
-            
+
 # Main application
 def main():
     st.title("Employee Attrition Analysis Dashboard")
@@ -425,4 +425,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
