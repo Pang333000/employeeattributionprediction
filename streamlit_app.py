@@ -401,17 +401,17 @@ def show_model_performance_page(df):
     for model_name in results_df["Model Name"]:
         with st.expander(f"About {model_name}"):
             if model_name == "Stacked RF+GB+SVM":
-                st.write("A stacked ensemble combining Random Forest, Gradient Boosting, and Support Vector Machine")
+                st.write("A stacked ensemble combining Random Forest, Gradient Boosting, and Support Vector Machine. Stacking ensembles, or stacked generalization, is a robust ensemble learning technique that combines the strengths of multiple predictive models to enhance overall performance. Unlike methods such as bagging and boosting, which often rely on homogeneous models, stacking leverages a diverse set of algorithms, each specializing in different aspects of the data. ")
             elif model_name == "Cascading Classifiers":
-                st.write("A cascade of classifiers where each model's predictions inform the next")
+                st.write("A Cascading Classifier combines classifiers in a sequential pipeline to refine predictions progressively, leveraging the strengths of different algorithms. In this study, a Random Forest classifier is used as the initial base classifier, followed by Gradient Boosting as the second classifier. This combination is particularly effective in employee attrition prediction due to the complementary strengths of these two algorithms.")
             elif model_name == "Calibration Curves":
-                st.write("Models with probability calibration applied")
+                st.write("Random Forest classifier and Logistic Regression are combined using calibration methods like platt scaling and isotonic regression to enhance the probability estimation accuracy of the model. The Random Forest classifier serves as the primary base model. Logistic Regression applied in Platt Scaling, refines these probabilities by fitting a logistic regression model to the Random Forest’s outputs. This creates a smoother and more reliable probability distribution. The use of calibration curves in this context evaluates the alignment between the model’s predicted probabilities and real-world attrition outcomes.")
             elif model_name == "HGBoost+KNN":
-                st.write("A hybrid model combining Histogram-based Gradient Boosting with k-Nearest Neighbors")
+                st.write("A hybrid model combining Histogram-based Gradient Boosting with k-Nearest Neighbors. The Histogram-based Gradient Boosting Classification Tree (Hist Gradient Boosting Classifier) is an advanced machine learning algorithm that enhances predictive performance by discretizing continuous features into discrete bins, thus reducing computational complexity and memory usage.")
             elif model_name == "XGBRF":
-                st.write("XGBoost with Random Forest-like tree growing")
+                st.write("XGBoost with Random Forest-like tree growing. XGBoost (eXtreme Gradient Boosting) is a powerful gradient boosting framework known for its speed and performance. It has been applied in employee attrition analysis to determine the root causes of employee resignation, with studies indicating that XG-Boost can effectively model complex relationships within HR data")
             elif model_name == "CatBoost+KNN":
-                st.write("A hybrid model combining CatBoost with k-Nearest Neighbors")
+                st.write("A hybrid model combining CatBoost with k-Nearest Neighbors. CatBoost is a gradient boosting algorithm specifically designed to handle categorical features efficiently without extensive pre-processing.")
             elif model_name == "Bagging":
                 st.write("Bagging (Bootstrap Aggregating) is an ensemble learning technique that reduces variance and avoids overfitting by training multiple models on different random subsets of the training data and combining their predictions. This model uses a DecisionTreeClassifier as the base learner. Each tree is trained on a different bootstrap sample of the training data.")
 
