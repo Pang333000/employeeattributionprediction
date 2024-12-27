@@ -1,6 +1,6 @@
-pandas==2.0.1
+pandas
 numpy==1.24.3
-catboost==1.2
+catboost
 joblib
 plotly
 scikit-learn
