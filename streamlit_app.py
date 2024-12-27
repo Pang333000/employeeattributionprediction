@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
+from catboost import CatBoostClassifier
 
 # Page config
 st.set_page_config(page_title="Employee Attrition Analysis", layout="wide")
@@ -381,8 +382,12 @@ def show_prediction_interface(trained_models):
         predictions = {}
         for model_name, model in trained_models.items():
             try:
-                pred = model.predict(input_df)
-                # 1 = "Yes", 0 = "No"
+                if model_name == "CatBoost":
+                    # CatBoost-specific prediction logic
+                    input_df['CategoricalColumn'] = input_df['CategoricalColumn'].astype(str)  # Replace with actual categorical columns
+                    pred = model.predict(input_df)
+                else:
+                    pred = model.predict(input_df)
                 predictions[model_name] = "Yes" if pred[0] == 1 else "No"
             except Exception as e:
                 predictions[model_name] = f"Error: {str(e)}"
@@ -391,7 +396,7 @@ def show_prediction_interface(trained_models):
         st.subheader("Predictions from all models:")
         for model_name, prediction in predictions.items():
             st.write(f"{model_name}: {prediction}")
-
+            
 # Main application
 def main():
     st.title("Employee Attrition Analysis Dashboard")
