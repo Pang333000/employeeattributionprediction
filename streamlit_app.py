@@ -97,12 +97,14 @@ def load_models():
 
     for model_name in model_names:
         file_name = os.path.join(save_path, f"{model_name.replace(' ', '_')}.joblib")
-        print(f"Loading model: {file_name}")
+        print(f"Attempting to load model: {model_name} from {file_name}")
         if not os.path.exists(file_name):
             raise FileNotFoundError(f"Model file not found: {file_name}")
         try:
             trained_models[model_name] = joblib.load(file_name)
+            print(f"Successfully loaded: {model_name}")
         except Exception as e:
+            print(f"Error loading {model_name}: {e}")
             raise RuntimeError(f"Failed to load {model_name}: {e}")
 
     return trained_models
