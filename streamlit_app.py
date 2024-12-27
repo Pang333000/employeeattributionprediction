@@ -141,6 +141,11 @@ def load_models():
         if "CatBoost+KNN" in trained_models and "CatBoost" in trained_models:
             main_model = trained_models["CatBoost+KNN"]  # the KNN
             pre_model = trained_models["CatBoost"]
+            
+            # Log for diagnostics
+            print(f"CatBoost model loaded: {pre_model}")
+            print(f"KNN model loaded: {main_model}")
+            
             catboost_knn_wrapper = CatBoostKNNWrapper(main_model=main_model, pre_model=pre_model)
             trained_models["CatBoost+KNN"] = catboost_knn_wrapper
             # Remove "CatBoost" since it's only a pre-model
