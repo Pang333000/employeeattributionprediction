@@ -98,7 +98,8 @@ def load_models():
         "XGBRF",
         "CatBoost+KNN",
         "CatBoost",
-        "Random_Forest"
+        "Random_Forest",
+        "Bagging"
     ]
 
     # Load all models
