@@ -81,9 +81,10 @@ class CatBoostKNNWrapper:
 
 # 1. Load pre-trained models
 def load_models():
-    # Dynamically determine the path to the Models directory
+    # Dynamically determine the path to the "Models" directory
     base_path = os.path.dirname(os.path.abspath(__file__))
-    save_path = os.path.join(base_path, 'Models')  # Adjusted to relative path
+    save_path = os.path.join(base_path, 'Models')  # Adjusted for relative path
+    
     trained_models = {}
     model_names = [
         "Stacked RF+GB+SVM",
@@ -98,9 +99,11 @@ def load_models():
 
     # Load all models
     for model_name in model_names:
+        # Build file path and verify existence
         file_name = os.path.join(save_path, f"{model_name.replace(' ', '_')}.joblib")
         if not os.path.exists(file_name):
             raise FileNotFoundError(f"Model file not found: {file_name}")
+
         trained_models[model_name] = joblib.load(file_name)
         print(f"Loaded {model_name} from {file_name}")
 
