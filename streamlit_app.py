@@ -80,9 +80,9 @@ def load_models():
 
     trained_models = {}
     model_names = [
-        "Stacked RF+GB+SVM",
-        "Cascading Classifiers",
-        "Calibration Curves",
+        "Stacked_RF+GB+SVM",
+        "Cascading_lassifiers",
+        "Calibration_Curves",
         "HGBoost+KNN",
         "XGBRF",
         "CatBoost+KNN",
