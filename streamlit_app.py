@@ -47,15 +47,11 @@ class CascadeWrapper:
         self.pre_model = pre_model
 
     def predict(self, X):
-        # 1) Generate probabilities from the pre_model
         pre_probs = self.pre_model.predict_proba(X)[:, 1].reshape(-1, 1)
-        # 2) Append to X
         X_cascade = np.hstack((X, pre_probs))
-        # 3) Predict with main_model
         return self.main_model.predict(X_cascade)
 
     def predict_proba(self, X):
-        # If you want a predict_proba method, do something similar:
         pre_probs = self.pre_model.predict_proba(X)[:, 1].reshape(-1, 1)
         X_cascade = np.hstack((X, pre_probs))
         return self.main_model.predict_proba(X_cascade)
@@ -67,11 +63,8 @@ class CatBoostKNNWrapper:
         self.pre_model = pre_model
 
     def predict(self, X):
-        # 1) Generate probabilities from the CatBoost model
         catboost_probs = self.pre_model.predict_proba(X)[:, 1].reshape(-1, 1)
-        # 2) Append to X
         X_hybrid = np.hstack((X, catboost_probs))
-        # 3) Predict with KNN
         return self.main_model.predict(X_hybrid)
 
     def predict_proba(self, X):
@@ -79,12 +72,12 @@ class CatBoostKNNWrapper:
         X_hybrid = np.hstack((X, catboost_probs))
         return self.main_model.predict_proba(X_hybrid)
 
-# 1. Load pre-trained models
+
 def load_models():
     # Dynamically determine the path to the "Models" directory
     base_path = os.path.dirname(os.path.abspath(__file__))
-    save_path = os.path.join(base_path, 'Models')  # Adjusted for relative path
-    
+    models_path = os.path.join(base_path, 'Models')  # Adjust path to your "Models" folder
+
     trained_models = {}
     model_names = [
         "Stacked RF+GB+SVM",
@@ -97,37 +90,32 @@ def load_models():
         "Random_Forest"
     ]
 
-    # Load all models
+    # Load all models dynamically
     for model_name in model_names:
-        # Build file path and verify existence
-        file_name = os.path.join(save_path, f"{model_name.replace(' ', '_')}.joblib")
-        if not os.path.exists(file_name):
-            raise FileNotFoundError(f"Model file not found: {file_name}")
+        file_path = os.path.join(models_path, f"{model_name.replace(' ', '_')}.joblib")
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Model file not found: {file_path}")
 
-        trained_models[model_name] = joblib.load(file_name)
-        print(f"Loaded {model_name} from {file_name}")
+        trained_models[model_name] = joblib.load(file_path)
+        print(f"Loaded model: {model_name} from {file_path}")
 
-    # ----------------------------------------------------------------
-    # Wrap "Cascading Classifiers" with the pre-model = "Random_Forest"
-    # ----------------------------------------------------------------
+    # Wrap "Cascading Classifiers" with "Random_Forest" pre-model
     if "Cascading Classifiers" in trained_models and "Random_Forest" in trained_models:
-        main_model = trained_models["Cascading Classifiers"]
-        pre_model = trained_models["Random_Forest"]
-        cascade_wrapper = CascadeWrapper(main_model=main_model, pre_model=pre_model)
+        cascade_wrapper = CascadeWrapper(
+            main_model=trained_models["Cascading Classifiers"],
+            pre_model=trained_models["Random_Forest"]
+        )
         trained_models["Cascading Classifiers"] = cascade_wrapper
-        # Remove "Random_Forest" since it's only a pre-model
-        del trained_models["Random_Forest"]
+        del trained_models["Random_Forest"]  # Remove "Random_Forest" pre-model
 
-    # ----------------------------------------------------------------
-    # Wrap "CatBoost+KNN" with the pre-model = "CatBoost"
-    # ----------------------------------------------------------------
+    # Wrap "CatBoost+KNN" with "CatBoost" pre-model
     if "CatBoost+KNN" in trained_models and "CatBoost" in trained_models:
-        main_model = trained_models["CatBoost+KNN"]  # the KNN
-        pre_model = trained_models["CatBoost"]
-        catboost_knn_wrapper = CatBoostKNNWrapper(main_model=main_model, pre_model=pre_model)
+        catboost_knn_wrapper = CatBoostKNNWrapper(
+            main_model=trained_models["CatBoost+KNN"],
+            pre_model=trained_models["CatBoost"]
+        )
         trained_models["CatBoost+KNN"] = catboost_knn_wrapper
-        # Remove "CatBoost" since it's only a pre-model
-        del trained_models["CatBoost"]
+        del trained_models["CatBoost"]  # Remove "CatBoost" pre-model
 
     return trained_models
     
