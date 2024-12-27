@@ -409,7 +409,7 @@ def show_model_performance_page(df):
             elif model_name == "HGBoost+KNN":
                 st.write("A hybrid model combining Histogram-based Gradient Boosting with k-Nearest Neighbors. The Histogram-based Gradient Boosting Classification Tree (Hist Gradient Boosting Classifier) is an advanced machine learning algorithm that enhances predictive performance by discretizing continuous features into discrete bins, thus reducing computational complexity and memory usage.")
             elif model_name == "XGBRF":
-                st.write("XGBoost with Random Forest-like tree growing. XGBoost (eXtreme Gradient Boosting) is a powerful gradient boosting framework known for its speed and performance. It has been applied in employee attrition analysis to determine the root causes of employee resignation, with studies indicating that XG-Boost can effectively model complex relationships within HR data")
+                st.write("XGBoost with Random Forest-like tree growing. XGBoost (eXtreme Gradient Boosting) is a powerful gradient boosting framework known for its speed and performance. It has been applied in employee attrition analysis to determine the root causes of employee resignation, with studies indicating that XG-Boost can effectively model complex relationships within HR data.")
             elif model_name == "CatBoost+KNN":
                 st.write("A hybrid model combining CatBoost with k-Nearest Neighbors. CatBoost is a gradient boosting algorithm specifically designed to handle categorical features efficiently without extensive pre-processing.")
             elif model_name == "Bagging":
